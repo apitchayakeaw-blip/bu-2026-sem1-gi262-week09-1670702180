@@ -19,6 +19,12 @@ namespace Solution
         {
             // Only push a state if it's different from the last saved state 
             // (optional optimization, but good practice for movement)
+            undoStack.Push(currentPosition);
+            if (redoStack.Count < 0)
+            {
+                redoStack.Clear();
+                Debug.Log(" stack clear");
+            }
         
         }
         /// Reverts the player's state to the previous one using the undo stack.
@@ -26,11 +32,33 @@ namespace Solution
         public void UndoLastMove(OOPPlayer player)
         {
             // Need at least two states: the current one, and the one to revert to.
+
+            if (undoStack.Count <= 1 )
+            {
+                return;
+            }
            
+            Vector2 currentState = undoStack.Pop();
+            player.UpdatePosition((int)currentState.x, (int)currentState.y);
+
+            Vector2 previousSyate = undoStack.Peek();
         }
         public void RedoLastMove(OOPPlayer player)
         {
             // Need at least two states: the current one, and the one to revert to.
+            //undoStack.Push();
+            //ector2 stateToRedo  = undoStack.Pop();
+            if (redoStack.Count == 0 )
+            {
+                return ;
+            }
+
+            Vector2 stateToRedo = redoStack.Pop();
+            undoStack.Push(stateToRedo);
+
+            player.UpdatePosition((int)stateToRedo.x, (int)stateToRedo.y);
+
+
 
         }
         #endregion
@@ -41,6 +69,12 @@ namespace Solution
         {
             //create a sample sequence of moves
             // 1. prepare the Queue with the sequence of moves
+            Vector2[] moves = { Vector2.right, Vector2.right, Vector2.up, Vector2.left, Vector2.up, Vector2.down };
+
+            foreach (Vector2 move in moves )
+            {
+                autoMoveQueue.Enqueue(move);
+            }
 
             // Start the coroutine to process the auto-move sequence
             StartCoroutine(ProcessAutoMoveSequence(player));
